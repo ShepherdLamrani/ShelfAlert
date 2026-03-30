@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShelfAlert — Expiry Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f5f7; color: #1a1a1a; min-height: 100vh; }
+
+    #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f4f5f7; }
+    .login-card { background: #fff; border: 1px solid #e2e4e8; border-radius: 12px; padding: 2.5rem 2rem; width: 100%; max-width: 380px; }
+    .login-sub { font-size: 13px; color: #6b7280; margin-bottom: 2rem; margin-top: 0.5rem; }
+    .login-field { margin-bottom: 1rem; }
+    .login-field label { display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 5px; }
+    .login-field input { width: 100%; height: 40px; border: 1px solid #d1d5db; border-radius: 7px; padding: 0 12px; font-size: 14px; outline: none; transition: border-color 0.15s; }
+    .login-field input:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
+    .login-btn { width: 100%; height: 40px; background: #185FA5; color: #fff; border: none; border-radius: 7px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 0.5rem; }
+    .login-btn:hover { background: #0C447C; }
+    .login-error { font-size: 12px; color: #b91c1c; margin-top: 10px; display: none; text-align: center; }
+    .login-hint { font-size: 11px; color: #9ca3af; text-align: center; margin-top: 1rem; }
+
+    #app { display: none; }
+
+    .navbar { background: #fff; border-bottom: 1px solid #e2e4e8; padding: 0 2rem; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-date { font-size: 13px; color: #6b7280; text-align: right; }
+    .logout-btn { font-size: 12px; padding: 5px 12px; border: 1px solid #d1d5db; border-radius: 7px; background: #fff; color: #6b7280; cursor: pointer; }
+    .logout-btn:hover { background: #f4f5f7; }
+
+    .page { max-width: 1050px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .low-stock-banner { background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 10px 16px; font-size: 13px; color: #92400e; font-weight: 500; margin-bottom: 1.25rem; display: none; }
+
+    .undo-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; font-size: 13px; padding: 10px 20px; border-radius: 8px; display: none; align-items: center; gap: 12px; z-index: 100; white-space: nowrap; }
+    .undo-toast.show { display: flex; }
+    .undo-btn-toast { background: none; border: 1px solid rgba(255,255,255,0.4); color: #fff; font-size: 12px; padding: 3px 10px; border-radius: 5px; cursor: pointer; }
+
+    .action-centre { background: #fff; border: 1px solid #e2e4e8; border-radius: 10px; margin-bottom: 1.5rem; overflow: hidden; display: none; }
+    .action-centre-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #e2e4e8; }
+    .action-centre-title { font-size: 14px; font-weight: 600; color: #1a1a1a; display: flex; align-items: center; gap: 8px; }
+    .action-badge { background: #b91c1c; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+    .action-list { list-style: none; }
+    .action-item { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #f0f1f3; cursor: pointer; transition: background 0.1s; }
+    .action-item:last-child { border-bottom: none; }
+    .action-item:hover { background: #fafafa; }
+    .action-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .action-dot.critical { background: #b91c1c; }
+    .action-dot.warning  { background: #d97706; }
+    .action-dot.low      { background: #2563eb; }
+    .action-text { font-size: 13px; color: #1a1a1a; flex: 1; }
+    .action-text strong { font-weight: 600; }
+    .action-tag { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .action-tag.critical { background: #FEE2E2; color: #991b1b; }
+    .action-tag.warning  { background: #FEF3C7; color: #92400e; }
+    .action-tag.low      { background: #EFF6FF; color: #1d4ed8; }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+    .stat-card { background: #fff; border: 1px solid #e2e4e8; border-radius: 10px; padding: 1rem 1.25rem; }
+    .stat-label { font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+    .stat-value { font-size: 28px; font-weight: 600; color: #1a1a1a; }
+    .stat-value.warn { color: #b45309; }
+    .stat-value.danger { color: #b91c1c; }
+
+    .form-card { background: #fff; border: 1px solid #e2e4e8; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: none; }
+    .form-card.open { display: block; }
+    .form-card-title { font-size: 14px; font-weight: 600; margin-bottom: 1rem; }
+    .form-grid { display: grid; grid-template-columns: 2fr 1fr 1.5fr 1.5fr 1.5fr auto; gap: 10px; align-items: end; }
+    .field label { display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 5px; }
+    .field input { width: 100%; height: 38px; border: 1px solid #d1d5db; border-radius: 7px; padding: 0 10px; font-size: 13px; color: #1a1a1a; background: #fff; outline: none; transition: border-color 0.15s; }
+    .field input:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
+    .field input::placeholder { color: #9ca3af; }
+    .btn-add { height: 38px; padding: 0 20px; background: #185FA5; color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+    .btn-add:hover { background: #0C447C; }
+    .form-error { font-size: 12px; color: #b91c1c; margin-top: 8px; display: none; }
+
+    .table-card { background: #fff; border: 1px solid #e2e4e8; border-radius: 10px; overflow: hidden; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #e2e4e8; flex-wrap: wrap; gap: 8px; }
+    .table-title { font-size: 14px; font-weight: 600; }
+    .table-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .search-input { height: 34px; border: 1px solid #d1d5db; border-radius: 7px; padding: 0 10px; font-size: 13px; outline: none; width: 200px; }
+    .search-input:focus { border-color: #185FA5; }
+    .filter-group { display: flex; gap: 4px; }
+    .filter-btn { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #d1d5db; background: transparent; color: #6b7280; cursor: pointer; }
+    .filter-btn:hover { background: #f4f5f7; }
+    .filter-btn.active { background: #EBF3FC; color: #185FA5; border-color: #185FA5; }
+    .btn-toggle-form { font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 7px; border: 1px solid #d1d5db; background: #fff; color: #1a1a1a; cursor: pointer; }
+    .btn-toggle-form:hover { background: #f4f5f7; }
+
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    thead th { font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.07em; padding: 10px 16px; text-align: left; background: #f9fafb; border-bottom: 1px solid #e2e4e8; cursor: pointer; user-select: none; white-space: nowrap; }
+    thead th:hover { background: #f0f1f3; color: #1a1a1a; }
+    thead th.sorted { color: #185FA5; }
+    .sort-arrow { margin-left: 4px; font-size: 10px; }
+    tbody td { font-size: 13px; color: #1a1a1a; padding: 11px 16px; border-bottom: 1px solid #f0f1f3; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr.data-row:hover td { filter: brightness(0.97); cursor: pointer; }
+    tbody tr.row-danger td { background: #fff0f0; }
+    tbody tr.row-warn   td { background: #fffbeb; }
+    tbody tr.row-ok     td { background: #fff; }
+
+    .col-name   { width: 22%; }
+    .col-qty    { width: 9%; }
+    .col-expiry { width: 14%; }
+    .col-days   { width: 13%; }
+    .col-status { width: 13%; }
+    .col-stock  { width: 12%; }
+    .col-acts   { width: 17%; }
+
+    .product-name { font-weight: 500; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .badge-ok     { background: #EAF3DE; color: #3B6D11; }
+    .badge-warn   { background: #FEF08A; color: #713f12; }
+    .badge-danger { background: #FF0000; color: #ffffff; }
+    .badge-low    { background: #FEE2E2; color: #991b1b; font-size: 10px; margin-left: 5px; padding: 2px 6px; border-radius: 20px; }
+    .days-ok     { color: #3B6D11; font-weight: 500; }
+    .days-warn   { color: #92400e; font-weight: 600; }
+    .days-danger { color: #b91c1c; font-weight: 600; }
+
+    .stock-controls { display: flex; align-items: center; gap: 6px; }
+    .stock-btn { width: 26px; height: 26px; border: 1px solid #d1d5db; border-radius: 5px; background: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #1a1a1a; }
+    .stock-btn:hover { background: #f4f5f7; }
+
+    .row-acts { display: flex; gap: 6px; }
+    .btn-edit { font-size: 11px; padding: 4px 10px; border: 1px solid #d1d5db; border-radius: 5px; background: #fff; color: #1a1a1a; cursor: pointer; }
+    .btn-edit:hover { background: #f4f5f7; }
+    .btn-delete { font-size: 11px; padding: 4px 10px; border: 1px solid #fca5a5; border-radius: 5px; background: #fff; color: #b91c1c; cursor: pointer; }
+    .btn-delete:hover { background: #FEE2E2; }
+
+    .expand-row td { background: #f9fafb !important; padding: 0 !important; border-bottom: 1px solid #e2e4e8 !important; cursor: default !important; }
+    .expand-inner { padding: 14px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .expand-label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .expand-value { font-size: 13px; color: #1a1a1a; font-weight: 500; }
+
+    .edit-form { padding: 14px 16px; }
+    .edit-grid { display: grid; grid-template-columns: 2fr 1fr 1.5fr 1.5fr 1.5fr; gap: 10px; align-items: end; margin-bottom: 10px; }
+    .edit-actions { display: flex; gap: 8px; }
+    .btn-save { height: 34px; padding: 0 16px; background: #185FA5; color: #fff; border: none; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .btn-save:hover { background: #0C447C; }
+    .btn-cancel { height: 34px; padding: 0 16px; background: #fff; color: #6b7280; border: 1px solid #d1d5db; border-radius: 7px; font-size: 12px; cursor: pointer; }
+    .btn-cancel:hover { background: #f4f5f7; }
+
+    .empty-row td { text-align: center; color: #9ca3af; padding: 2.5rem; font-size: 13px; }
+    .settings-btn { background: none; border: 1px solid #d1d5db; border-radius: 7px; padding: 5px 8px; cursor: pointer; color: #6b7280; display: flex; align-items: center; }
+    .settings-btn:hover { background: #f4f5f7; }
+    .settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 50; display: none; align-items: center; justify-content: center; }
+    .settings-overlay.open { display: flex; }
+    .settings-modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 360px; border: 1px solid #e2e4e8; }
+    .settings-modal h2 { font-size: 16px; font-weight: 600; margin-bottom: 1.25rem; }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .settings-row label { font-size: 13px; color: #1a1a1a; }
+    .settings-row input { width: 80px; height: 36px; border: 1px solid #d1d5db; border-radius: 7px; padding: 0 10px; font-size: 13px; outline: none; text-align: center; }
+    .settings-row input:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
+    .settings-hint { font-size: 11px; color: #9ca3af; margin-bottom: 1.25rem; }
+    .settings-save { width: 100%; height: 38px; background: #185FA5; color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .settings-save:hover { background: #0C447C; }
+    .loading-row td { text-align: center; color: #9ca3af; padding: 2.5rem; font-size: 13px; }
+
+    @media (max-width: 700px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .btn-add { grid-column: span 2; width: 100%; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .stats .stat-card:last-child { grid-column: span 2; }
+      .col-expiry, thead .col-expiry, .col-days, thead .col-days { display: none; }
+      .edit-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.5rem;">
+        <div style="width:4px;height:36px;background:#185FA5;border-radius:2px;flex-shrink:0;"></div>
+        <div style="display:flex;flex-direction:column;line-height:1.1;">
+          <span style="font-size:20px;font-weight:700;color:#0f1923;letter-spacing:-0.3px;">Shelf<span style="color:#185FA5;">Alert</span></span>
+          <span style="font-size:9px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;margin-top:3px;">Expiry management</span>
+        </div>
+      </div>
+      <div class="login-sub">Sign in to your account</div>
+      <div class="login-field">
+        <label>Username</label>
+        <input type="text" id="login-user" placeholder="Enter username" />
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter') doLogin()" />
+      </div>
+      <button class="login-btn" onclick="doLogin()">Sign in</button>
+      <div class="login-error" id="login-error">Incorrect username or password.</div>
+      <div class="login-hint">Demo login — username: <strong>admin</strong> / password: <strong>admin123</strong></div>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="app">
+    <nav class="navbar">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:4px;height:36px;background:#185FA5;border-radius:2px;flex-shrink:0;"></div>
+        <div style="display:flex;flex-direction:column;line-height:1.1;">
+          <span style="font-size:18px;font-weight:700;color:#0f1923;letter-spacing:-0.3px;">Shelf<span style="color:#185FA5;">Alert</span></span>
+          <span style="font-size:9px;color:#6b7280;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">Expiry management</span>
+        </div>
+      </div>
+      <div class="nav-right">
+        <div class="nav-date" id="today-date"></div>
+        <button class="settings-btn" onclick="openSettings()" title="Settings">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="logout-btn" onclick="doLogout()">Sign out</button>
+      </div>
+    </nav>
+
+    <main class="page">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+        <h1 style="font-size:20px;font-weight:600;">Product inventory</h1>
+        <button class="btn-toggle-form" onclick="toggleForm()">+ Add product</button>
+      </div>
+
+      <div class="low-stock-banner" id="low-stock-banner"></div>
+
+      <div class="action-centre" id="action-centre">
+        <div class="action-centre-header">
+          <div class="action-centre-title">
+            Action centre <span class="action-badge" id="action-count">0</span>
+          </div>
+        </div>
+        <ul class="action-list" id="action-list"></ul>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card"><div class="stat-label">Total products</div><div class="stat-value" id="stat-total">0</div></div>
+        <div class="stat-card"><div class="stat-label">Expiring soon</div><div class="stat-value warn" id="stat-warn">0</div></div>
+        <div class="stat-card"><div class="stat-label">Expired</div><div class="stat-value danger" id="stat-expired">0</div></div>
+      </div>
+
+      <div class="form-card" id="add-form">
+        <div class="form-card-title">Add new product</div>
+        <div class="form-grid">
+          <div class="field"><label>Product name</label><input type="text" id="f-name" placeholder="e.g. Paracetamol 500mg" /></div>
+          <div class="field"><label>Quantity</label><input type="number" id="f-qty" placeholder="120" min="0" /></div>
+          <div class="field"><label>Expiry date</label><input type="date" id="f-date" /></div>
+          <div class="field"><label>Supplier name</label><input type="text" id="f-supplier" placeholder="e.g. MedSupply Ltd" /></div>
+          <div class="field"><label>Supplier phone</label><input type="text" id="f-phone" placeholder="e.g. 087 123 4567" /></div>
+          <button class="btn-add" onclick="addProduct()">Add</button>
+        </div>
+        <div class="form-error" id="form-error">Please fill in product name, quantity and expiry date.</div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">All products</div>
+          <div class="table-actions">
+            <input type="text" class="search-input" id="search-input" placeholder="Search products..." oninput="renderTable()" />
+            <div class="filter-group">
+              <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+              <button class="filter-btn" onclick="setFilter('warn', this)">Expiring soon</button>
+              <button class="filter-btn" onclick="setFilter('danger', this)">Expired</button>
+            </div>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th class="col-name"   onclick="setSort('name')">Product name <span class="sort-arrow" id="arr-name"></span></th>
+              <th class="col-qty"    onclick="setSort('qty')">Qty <span class="sort-arrow" id="arr-qty"></span></th>
+              <th class="col-expiry" onclick="setSort('expiry')">Expiry date <span class="sort-arrow" id="arr-expiry"></span></th>
+              <th class="col-days"   onclick="setSort('days')">Days left <span class="sort-arrow" id="arr-days"></span></th>
+              <th class="col-status" onclick="setSort('status')">Status <span class="sort-arrow" id="arr-status"></span></th>
+              <th class="col-stock"  style="cursor:default;">Stock</th>
+              <th class="col-acts"   style="cursor:default;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="product-table"><tr class="loading-row"><td colspan="7">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div class="settings-overlay" id="settings-overlay" onclick="closeSettingsOutside(event)">
+    <div class="settings-modal">
+      <h2>Settings</h2>
+      <div class="settings-row">
+        <label>Low stock threshold</label>
+        <input type="number" id="threshold-input" value="10" min="1" max="999" />
+      </div>
+      <div class="settings-hint">Products at or below this quantity will trigger a low stock alert.</div>
+      <button class="settings-save" onclick="saveSettings()">Save settings</button>
+    </div>
+  </div>
+
+  <div class="undo-toast" id="undo-toast">
+    Product removed. <button class="undo-btn-toast" onclick="undoDelete()">Undo</button>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://vkkufrrpuxnxfybrgovk.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZra3VmcnJwdXhueGZ5YnJnb3ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NDc4MjMsImV4cCI6MjA5MDIyMzgyM30.QdfRvLl1CblWxEkDMy-vwBFwx1dQ6OH0Q5F4hYvMvz0';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const USERS = { admin: 'admin123' };
+
+    function doLogin() {
+      const u = document.getElementById('login-user').value.trim();
+      const p = document.getElementById('login-pass').value;
+      if (USERS[u] && USERS[u] === p) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        loadProducts();
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+
+    function doLogout() {
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-error').style.display = 'none';
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    document.getElementById('today-date').innerHTML =
+      today.toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' }) +
+      '<br><span style="font-size:11px;color:#9ca3af;display:block;text-align:right;">' +
+      new Date().toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' }) + '</span>';
+
+    function daysUntil(d) { return Math.round((new Date(d) - today) / 86400000); }
+    function getStatus(days) {
+      if (days <= 0)  return { label: 'Expired',       cls: 'badge-danger', filter: 'danger' };
+      if (days <= 30) return { label: 'Expiring soon', cls: 'badge-warn',   filter: 'warn'   };
+      return               { label: 'In stock',        cls: 'badge-ok',     filter: 'ok'     };
+    }
+    function formatDate(s) { return new Date(s).toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' }); }
+    function nowStr() { return new Date().toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+    function daysLabel(days) {
+      if (days <= 0)  return 'Expired';
+      if (days === 1) return '1 day left';
+      return days + ' days left';
+    }
+    function daysCls(days) {
+      if (days <= 0)  return 'days-danger';
+      if (days <= 30) return 'days-warn';
+      return 'days-ok';
+    }
+
+    let products = [];
+    let lowStockThreshold = parseInt(localStorage.getItem('lowStockThreshold') || '10');
+    let currentFilter = 'all';
+    let expandedId = null;
+    let editingId  = null;
+    let lastDeleted = null;
+    let undoTimer  = null;
+    let sortCol = 'status';
+    let sortDir = 1;
+
+    // ── Supabase: load all products ───────────────────────────
+    async function loadProducts() {
+      const { data, error } = await sb.from('products').select('*');
+      if (error) { console.error(error); return; }
+      products = data.map(p => ({
+        id:        p.id,
+        name:      p.name,
+        qty:       p.qty,
+        expiry:    p.expiry,
+        supplier:  p.supplier || '',
+        phone:     p.phone    || '',
+        dateAdded: p.date_added || '',
+      }));
+      renderTable();
+    }
+
+    // ── Supabase: add product ─────────────────────────────────
+    async function addProduct() {
+      const name     = document.getElementById('f-name').value.trim();
+      const qty      = parseInt(document.getElementById('f-qty').value);
+      const expiry   = document.getElementById('f-date').value;
+      const supplier = document.getElementById('f-supplier').value.trim();
+      const phone    = document.getElementById('f-phone').value.trim();
+      const errEl    = document.getElementById('form-error');
+      if (!name || isNaN(qty) || !expiry) { errEl.style.display = 'block'; return; }
+      errEl.style.display = 'none';
+
+      const { data, error } = await sb.from('products').insert([{
+        name, qty, expiry, supplier, phone, date_added: nowStr()
+      }]).select();
+
+      if (error) { console.error(error); alert('Error saving product. Please try again.'); return; }
+
+      products.push({
+        id: data[0].id, name, qty, expiry, supplier, phone, dateAdded: nowStr()
+      });
+      ['f-name','f-qty','f-date','f-supplier','f-phone'].forEach(id => document.getElementById(id).value = '');
+      renderTable();
+    }
+
+    // ── Supabase: delete product ──────────────────────────────
+    async function deleteProduct(id) {
+      lastDeleted = products.find(p => p.id === id);
+      products = products.filter(p => p.id !== id);
+      if (expandedId === id) expandedId = null;
+      if (editingId  === id) editingId  = null;
+      renderTable();
+      showUndo();
+      await sb.from('products').delete().eq('id', id);
+    }
+
+    // ── Supabase: adjust stock ────────────────────────────────
+    async function adjustStock(id, delta) {
+      const p = products.find(p => p.id === id);
+      if (!p) return;
+      p.qty = Math.max(0, p.qty + delta);
+      renderTable();
+      await sb.from('products').update({ qty: p.qty }).eq('id', id);
+    }
+
+    // ── Supabase: save edit ───────────────────────────────────
+    async function saveEdit(id) {
+      const p        = products.find(p => p.id === id);
+      const name     = document.getElementById('e-name').value.trim();
+      const qty      = parseInt(document.getElementById('e-qty').value);
+      const expiry   = document.getElementById('e-date').value;
+      const supplier = document.getElementById('e-supplier').value.trim();
+      const phone    = document.getElementById('e-phone').value.trim();
+      if (!name || isNaN(qty) || !expiry) return;
+      Object.assign(p, { name, qty, expiry, supplier, phone });
+      editingId = null; expandedId = null;
+      renderTable();
+      await sb.from('products').update({ name, qty, expiry, supplier, phone }).eq('id', id);
+    }
+
+    // ── Undo delete ───────────────────────────────────────────
+    async function undoDelete() {
+      if (!lastDeleted) return;
+      const p = lastDeleted;
+      const { data, error } = await sb.from('products').insert([{
+        name: p.name, qty: p.qty, expiry: p.expiry,
+        supplier: p.supplier, phone: p.phone, date_added: p.dateAdded
+      }]).select();
+      if (!error) {
+        products.push({ ...p, id: data[0].id });
+        renderTable();
+      }
+      lastDeleted = null;
+      document.getElementById('undo-toast').classList.remove('show');
+      clearTimeout(undoTimer);
+    }
+
+    // ── Sort ──────────────────────────────────────────────────
+    function setSort(col) {
+      if (sortCol === col) { sortDir *= -1; } else { sortCol = col; sortDir = 1; }
+      renderTable();
+    }
+
+    function updateSortArrows() {
+      ['name','qty','expiry','days','status'].forEach(c => {
+        const el = document.getElementById('arr-' + c);
+        if (!el) return;
+        const th = el.closest('th');
+        if (c === sortCol) { el.textContent = sortDir === 1 ? '▲' : '▼'; th.classList.add('sorted'); }
+        else { el.textContent = ''; th.classList.remove('sorted'); }
+      });
+    }
+
+    function sortProducts(list) {
+      return list.slice().sort((a, b) => {
+        let va, vb;
+        if (sortCol === 'name')   { va = a.name.toLowerCase();  vb = b.name.toLowerCase(); }
+        if (sortCol === 'qty')    { va = a.qty;                  vb = b.qty; }
+        if (sortCol === 'expiry') { va = new Date(a.expiry);     vb = new Date(b.expiry); }
+        if (sortCol === 'days')   { va = daysUntil(a.expiry);    vb = daysUntil(b.expiry); }
+        if (sortCol === 'status') {
+          const order = { danger: 0, warn: 1, ok: 2 };
+          va = order[getStatus(daysUntil(a.expiry)).filter];
+          vb = order[getStatus(daysUntil(b.expiry)).filter];
+          if (va === vb) return new Date(a.expiry) - new Date(b.expiry);
+        }
+        if (va < vb) return -1 * sortDir;
+        if (va > vb) return  1 * sortDir;
+        return 0;
+      });
+    }
+
+    // ── Render ────────────────────────────────────────────────
+    function renderTable() {
+      updateSortArrows();
+      const tbody  = document.getElementById('product-table');
+      const search = document.getElementById('search-input').value.toLowerCase();
+
+      const filtered = sortProducts(
+        (currentFilter === 'all'
+          ? products
+          : products.filter(p => getStatus(daysUntil(p.expiry)).filter === currentFilter))
+        .filter(p => p.name.toLowerCase().startsWith(search))
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No products found.</td></tr>';
+      } else {
+        tbody.innerHTML = filtered.map(p => {
+          const days = daysUntil(p.expiry);
+          const st   = getStatus(days);
+          const low  = p.qty <= lowStockThreshold;
+          const rowCls     = st.filter === 'danger' ? 'row-danger' : st.filter === 'warn' ? 'row-warn' : 'row-ok';
+          const isExpanded = expandedId === p.id;
+          const isEditing  = editingId  === p.id;
+
+          const dataRow = `
+            <tr class="data-row ${rowCls}" onclick="toggleExpand(${p.id})">
+              <td class="product-name">${p.name}${low ? '<span class="badge badge-low">Low</span>' : ''}</td>
+              <td style="${low ? 'color:#b91c1c;font-weight:600' : ''}">${p.qty}</td>
+              <td style="color:#6b7280">${formatDate(p.expiry)}</td>
+              <td class="${daysCls(days)}">${daysLabel(days)}</td>
+              <td><span class="badge ${st.cls}">${st.label}</span></td>
+              <td>
+                <div class="stock-controls" onclick="event.stopPropagation()">
+                  <button class="stock-btn" onclick="adjustStock(${p.id}, -1)">−</button>
+                  <button class="stock-btn" onclick="adjustStock(${p.id},  1)">+</button>
+                </div>
+              </td>
+              <td>
+                <div class="row-acts" onclick="event.stopPropagation()">
+                  <button class="btn-edit"   onclick="startEdit(${p.id})">Edit</button>
+                  <button class="btn-delete" onclick="deleteProduct(${p.id})">Delete</button>
+                </div>
+              </td>
+            </tr>`;
+
+          let expandRow = '';
+          if (isExpanded && !isEditing) {
+            expandRow = `
+              <tr class="expand-row">
+                <td colspan="7">
+                  <div class="expand-inner">
+                    <div><div class="expand-label">Date added</div><div class="expand-value">${p.dateAdded || '—'}</div></div>
+                    <div><div class="expand-label">Supplier</div><div class="expand-value">${p.supplier || '—'}</div></div>
+                    <div><div class="expand-label">Supplier phone</div><div class="expand-value">${p.phone || '—'}</div></div>
+                    <div><div class="expand-label">Expiry date</div><div class="expand-value">${formatDate(p.expiry)}</div></div>
+                    <div><div class="expand-label">Days remaining</div><div class="expand-value ${daysCls(days)}">${daysLabel(days)}</div></div>
+                  </div>
+                </td>
+              </tr>`;
+          }
+
+          if (isEditing) {
+            expandRow = `
+              <tr class="expand-row">
+                <td colspan="7">
+                  <div class="edit-form">
+                    <div class="edit-grid">
+                      <div class="field"><label>Product name</label>  <input type="text"   id="e-name"     value="${p.name}" /></div>
+                      <div class="field"><label>Quantity</label>       <input type="number" id="e-qty"      value="${p.qty}" min="0" /></div>
+                      <div class="field"><label>Expiry date</label>    <input type="date"   id="e-date"     value="${p.expiry}" /></div>
+                      <div class="field"><label>Supplier name</label>  <input type="text"   id="e-supplier" value="${p.supplier || ''}" /></div>
+                      <div class="field"><label>Supplier phone</label> <input type="text"   id="e-phone"    value="${p.phone || ''}" /></div>
+                    </div>
+                    <div class="edit-actions">
+                      <button class="btn-save"   onclick="saveEdit(${p.id})">Save changes</button>
+                      <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>`;
+          }
+
+          return dataRow + expandRow;
+        }).join('');
+      }
+
+      renderActionCentre();
+      document.getElementById('stat-total').textContent   = products.length;
+      document.getElementById('stat-warn').textContent    = products.filter(p => getStatus(daysUntil(p.expiry)).filter === 'warn').length;
+      document.getElementById('stat-expired').textContent = products.filter(p => getStatus(daysUntil(p.expiry)).filter === 'danger').length;
+
+      const lowItems = products.filter(p => p.qty <= lowStockThreshold);
+      const banner   = document.getElementById('low-stock-banner');
+      if (lowItems.length > 0) {
+        banner.style.display = 'block';
+        banner.textContent = '⚠ Low stock warning: ' + lowItems.map(p => p.name + ' (' + p.qty + ' left)').join(', ');
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    function toggleExpand(id) {
+      if (editingId === id) return;
+      expandedId = expandedId === id ? null : id;
+      editingId  = null;
+      renderTable();
+    }
+
+    function startEdit(id) { editingId = id; expandedId = id; renderTable(); }
+    function cancelEdit()  { editingId = null; expandedId = null; renderTable(); }
+
+    function showUndo() {
+      const toast = document.getElementById('undo-toast');
+      toast.classList.add('show');
+      clearTimeout(undoTimer);
+      undoTimer = setTimeout(() => { toast.classList.remove('show'); lastDeleted = null; }, 5000);
+    }
+
+    function setFilter(f, btn) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTable();
+    }
+
+    function renderActionCentre() {
+      const alerts = [];
+
+      products.forEach(p => {
+        const days = daysUntil(p.expiry);
+        const low  = p.qty <= lowStockThreshold;
+        if (days <= 0) {
+          alerts.push({ type: 'critical', id: p.id, text: '<strong>' + p.name + '</strong> has expired — remove immediately', tag: 'Expired', score: 0 });
+        } else if (days <= 7) {
+          alerts.push({ type: 'critical', id: p.id, text: '<strong>' + p.name + '</strong> expires in ' + days + ' day' + (days === 1 ? '' : 's'), tag: 'Critical', score: 1 });
+        } else if (days <= 30) {
+          alerts.push({ type: 'warning', id: p.id, text: '<strong>' + p.name + '</strong> expires in ' + days + ' days', tag: 'Expiring soon', score: 2 });
+        }
+        if (low && days > 0) {
+          alerts.push({ type: 'low', id: p.id, text: '<strong>' + p.name + '</strong> is low on stock (' + p.qty + ' left)', tag: 'Low stock', score: 3 });
+        }
+      });
+
+      alerts.sort((a, b) => a.score - b.score);
+
+      const centre = document.getElementById('action-centre');
+      const list   = document.getElementById('action-list');
+      const badge  = document.getElementById('action-count');
+
+      if (alerts.length === 0) {
+        centre.style.display = 'none';
+        return;
+      }
+
+      centre.style.display = 'block';
+      badge.textContent = alerts.length;
+      list.innerHTML = alerts.map(a => `
+        <li class="action-item" onclick="jumpToProduct(${a.id})">
+          <div class="action-dot ${a.type}"></div>
+          <div class="action-text">${a.text}</div>
+          <span class="action-tag ${a.type}">${a.tag}</span>
+        </li>`).join('');
+    }
+
+    function jumpToProduct(id) {
+      expandedId = id;
+      editingId  = null;
+      currentFilter = 'all';
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.filter-btn').classList.add('active');
+      document.getElementById('search-input').value = '';
+      renderTable();
+      setTimeout(() => {
+        const row = document.querySelector(`tr[onclick="toggleExpand(${id})"]`);
+        if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+
+    function openSettings() {
+      document.getElementById('threshold-input').value = lowStockThreshold;
+      document.getElementById('settings-overlay').classList.add('open');
+    }
+    function closeSettingsOutside(e) {
+      if (e.target === document.getElementById('settings-overlay')) {
+        document.getElementById('settings-overlay').classList.remove('open');
+      }
+    }
+    function saveSettings() {
+      const val = parseInt(document.getElementById('threshold-input').value);
+      if (isNaN(val) || val < 1) return;
+      lowStockThreshold = val;
+      localStorage.setItem('lowStockThreshold', val);
+      document.getElementById('settings-overlay').classList.remove('open');
+      renderTable();
+    }
+
+    function toggleForm() { document.getElementById('add-form').classList.toggle('open'); }
+  </script>
+</body>
+</html>
