@@ -66,7 +66,7 @@
     .form-card { background: #fff; border: 1px solid #e2e4e8; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: none; }
     .form-card.open { display: block; }
     .form-card-title { font-size: 14px; font-weight: 600; margin-bottom: 1rem; }
-    .form-grid { display: grid; grid-template-columns: 2fr 1fr 1.5fr 1.5fr 1.5fr 1fr auto; gap: 10px; align-items: end; }
+    .form-grid { display: grid; grid-template-columns: 2fr 1fr 1.5fr 1.5fr 1.5fr auto; gap: 10px; align-items: end; }
     .field label { display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 5px; }
     .field input { width: 100%; height: 38px; border: 1px solid #d1d5db; border-radius: 7px; padding: 0 10px; font-size: 13px; color: #1a1a1a; background: #fff; outline: none; transition: border-color 0.15s; }
     .field input:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
@@ -74,11 +74,6 @@
     .btn-add { height: 38px; padding: 0 20px; background: #185FA5; color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
     .btn-add:hover { background: #0C447C; }
     .form-error { font-size: 12px; color: #b91c1c; margin-top: 8px; display: none; }
-    .cat-select { width: 100%; height: 38px; border: 1px solid #d1d5db; border-radius: 7px; padding: 0 10px; font-size: 13px; color: #1a1a1a; background: #fff; outline: none; cursor: pointer; }
-    .cat-select:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
-    .cat-custom-wrap { display: none; margin-top: 6px; position: relative; }
-    .cat-custom-wrap input { width: 100%; height: 38px; border: 1px solid #185FA5; border-radius: 7px; padding: 0 10px; font-size: 13px; outline: none; }
-    .cat-custom-wrap button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: #185FA5; color: #fff; border: none; border-radius: 5px; padding: 3px 10px; font-size: 11px; cursor: pointer; }
 
     .table-card { background: #fff; border: 1px solid #e2e4e8; border-radius: 10px; overflow: hidden; }
     .table-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #e2e4e8; flex-wrap: wrap; gap: 8px; }
@@ -105,14 +100,13 @@
     tbody tr.row-warn   td { background: #fffbeb; }
     tbody tr.row-ok     td { background: #fff; }
 
-    .col-name   { width: 20%; }
-    .col-cat    { width: 12%; }
+    .col-name   { width: 22%; }
     .col-qty    { width: 9%; }
     .col-expiry { width: 14%; }
     .col-days   { width: 13%; }
     .col-status { width: 13%; }
     .col-stock  { width: 12%; }
-    .col-acts   { width: 15%; }
+    .col-acts   { width: 17%; }
 
     .product-name { font-weight: 500; }
     .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
@@ -137,11 +131,6 @@
     .expand-row td { background: #f9fafb !important; padding: 0 !important; border-bottom: 1px solid #e2e4e8 !important; cursor: default !important; }
     .expand-inner { padding: 14px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
     .expand-label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-    .contact-btns { display: flex; gap: 6px; margin-top: 4px; }
-    .btn-call { font-size: 11px; padding: 4px 10px; border: 1px solid #d1d5db; border-radius: 5px; background: #fff; color: #1a1a1a; cursor: pointer; text-decoration: none; display: inline-block; }
-    .btn-call:hover { background: #f4f5f7; }
-    .btn-wa { font-size: 11px; padding: 4px 10px; border: 1px solid #22c55e; border-radius: 5px; background: #fff; color: #16a34a; cursor: pointer; text-decoration: none; display: inline-block; }
-    .btn-wa:hover { background: #f0fdf4; }
     .expand-value { font-size: 13px; color: #1a1a1a; font-weight: 500; }
 
     .edit-form { padding: 14px 16px; }
@@ -167,20 +156,118 @@
     .settings-save { width: 100%; height: 38px; background: #185FA5; color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; }
     .settings-save:hover { background: #0C447C; }
     .loading-row td { text-align: center; color: #9ca3af; padding: 2.5rem; font-size: 13px; }
-    .empty-state { text-align: center; padding: 3rem 1rem; }
-    .empty-state-icon { font-size: 32px; margin-bottom: 0.75rem; }
-    .empty-state-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 0.5rem; }
-    .empty-state-sub { font-size: 13px; color: #6b7280; margin-bottom: 1.25rem; }
-    .empty-state-btn { display: inline-block; padding: 8px 20px; background: #185FA5; color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; }
-    .empty-state-btn:hover { background: #0C447C; }
 
     @media (max-width: 700px) {
+      /* Navbar */
+      .navbar { padding: 0 1rem; height: 52px; }
+      .nav-date { display: none; }
+
+      /* Page */
+      .page { padding: 1rem; }
+
+      /* Stats */
+      .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .stat-value { font-size: 20px; }
+      .stat-label { font-size: 10px; }
+
+      /* Add form */
       .form-grid { grid-template-columns: 1fr 1fr; }
       .btn-add { grid-column: span 2; width: 100%; }
-      .stats { grid-template-columns: 1fr 1fr; }
-      .stats .stat-card:last-child { grid-column: span 2; }
-      .col-expiry, thead .col-expiry, .col-days, thead .col-days { display: none; }
       .edit-grid { grid-template-columns: 1fr 1fr; }
+
+      /* Table header */
+      .table-header { flex-direction: column; align-items: flex-start; }
+      .table-actions { width: 100%; flex-direction: column; }
+      .search-input { width: 100%; }
+      .filter-group { width: 100%; }
+      .filter-btn { flex: 1; text-align: center; }
+
+      /* Hide table headers completely */
+      table thead { display: none !important; }
+
+      /* Turn rows into cards */
+      table { display: block; }
+      table tbody { display: block; width: 100%; }
+      table tbody tr.data-row {
+        display: block;
+        background: #fff;
+        border: 1px solid #e2e4e8;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        padding: 12px 14px;
+        position: relative;
+      }
+      table tbody tr.row-danger { border-left: 4px solid #b91c1c !important; }
+      table tbody tr.row-warn   { border-left: 4px solid #d97706 !important; }
+      table tbody tr.row-ok     { border-left: 4px solid #e2e4e8 !important; }
+
+      table tbody tr.data-row td {
+        display: block;
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+      }
+
+      /* Product name */
+      table tbody tr.data-row td.product-name {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #1a1a1a;
+      }
+
+      /* Hide expiry date and days left columns */
+      table tbody tr.data-row td:nth-child(3),
+      table tbody tr.data-row td:nth-child(4) { display: none !important; }
+
+      /* Qty inline */
+      table tbody tr.data-row td:nth-child(2) {
+        display: inline-block;
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 8px;
+      }
+      table tbody tr.data-row td:nth-child(2)::before { content: "Qty: "; }
+
+      /* Category inline */
+      table tbody tr.data-row td:nth-child(5) {
+        display: inline-block;
+        font-size: 12px;
+        color: #6b7280;
+        margin-left: 10px;
+        margin-bottom: 8px;
+      }
+
+      /* Status badge */
+      table tbody tr.data-row td:nth-child(6) {
+        display: inline-block;
+        margin-left: 10px;
+        margin-bottom: 8px;
+      }
+
+      /* Stock +/- controls */
+      table tbody tr.data-row td:nth-child(7) { margin-bottom: 8px; }
+
+      /* Action buttons */
+      table tbody tr.data-row td:nth-child(8) { margin-top: 4px; }
+      .row-acts { gap: 8px; }
+      .btn-edit, .btn-delete { padding: 6px 16px; font-size: 12px; }
+
+      /* Expand row */
+      table tbody tr.expand-row { display: block; margin-bottom: 10px; margin-top: -10px; }
+      table tbody tr.expand-row td {
+        display: block !important;
+        border-radius: 0 0 10px 10px !important;
+        border: 1px solid #e2e4e8 !important;
+        border-top: none !important;
+        background: #f9fafb !important;
+        padding: 0 !important;
+      }
+      .expand-inner { grid-template-columns: 1fr 1fr; }
+
+      /* Empty/loading rows */
+      table tbody tr.empty-row td,
+      table tbody tr.loading-row td { display: block; text-align: center; padding: 2rem !important; }
     }
   </style>
 </head>
@@ -208,17 +295,6 @@
       <button class="login-btn" onclick="doLogin()">Sign in</button>
       <div class="login-error" id="login-error">Incorrect username or password.</div>
       <div class="login-hint">Demo login — username: <strong>admin</strong> / password: <strong>admin123</strong></div>
-<div style="margin-top:1rem;text-align:center;padding-top:1rem;border-top:1px solid #e2e4e8;">
-  <a href="https://wa.me/353874212154" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#16a34a;text-decoration:none;font-weight:500;">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="#16a34a"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    Interested in ShelfAlert? Chat with us on WhatsApp
-    <br>
-<a href="mailto:shelfalertmtg@gmail.com" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#185FA5;text-decoration:none;font-weight:500;margin-top:6px;">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
-  shelfalertmtg@gmail.com
-</a>
-  </a>
-</div>
     </div>
   </div>
 
@@ -272,16 +348,6 @@
           <div class="field"><label>Expiry date</label><input type="date" id="f-date" /></div>
           <div class="field"><label>Supplier name</label><input type="text" id="f-supplier" placeholder="e.g. MedSupply Ltd" /></div>
           <div class="field"><label>Supplier phone</label><input type="text" id="f-phone" placeholder="e.g. 087 123 4567" /></div>
-          <div class="field">
-            <label>Category</label>
-            <select class="cat-select" id="f-category" onchange="handleCatChange('f-category','f-cat-custom')">
-              <option value="">— Select —</option>
-            </select>
-            <div class="cat-custom-wrap" id="f-cat-custom-wrap">
-              <input type="text" id="f-cat-custom" placeholder="Type new category..." />
-              <button onclick="addCustomCategory('f-cat-custom','f-category')">Add</button>
-            </div>
-          </div>
           <button class="btn-add" onclick="addProduct()">Add</button>
         </div>
         <div class="form-error" id="form-error">Please fill in product name, quantity and expiry date.</div>
@@ -297,7 +363,6 @@
               <button class="filter-btn" onclick="setFilter('warn', this)">Expiring soon</button>
               <button class="filter-btn" onclick="setFilter('danger', this)">Expired</button>
             </div>
-            <button class="btn-toggle-form" onclick="exportCSV()" style="background:#fff;">Export CSV</button>
           </div>
         </div>
         <table>
@@ -307,13 +372,12 @@
               <th class="col-qty"    onclick="setSort('qty')">Qty <span class="sort-arrow" id="arr-qty"></span></th>
               <th class="col-expiry" onclick="setSort('expiry')">Expiry date <span class="sort-arrow" id="arr-expiry"></span></th>
               <th class="col-days"   onclick="setSort('days')">Days left <span class="sort-arrow" id="arr-days"></span></th>
-              <th class="col-cat" onclick="setSort('category')">Category <span class="sort-arrow" id="arr-category"></span></th>
               <th class="col-status" onclick="setSort('status')">Status <span class="sort-arrow" id="arr-status"></span></th>
               <th class="col-stock"  style="cursor:default;">Stock</th>
               <th class="col-acts"   style="cursor:default;">Actions</th>
             </tr>
           </thead>
-          <tbody id="product-table"><tr class="loading-row"><td colspan="8">Loading...</td></tr></tbody>
+          <tbody id="product-table"><tr class="loading-row"><td colspan="7">Loading...</td></tr></tbody>
         </table>
       </div>
     </main>
@@ -407,9 +471,8 @@
         name:      p.name,
         qty:       p.qty,
         expiry:    p.expiry,
-        supplier:  p.supplier  || '',
-        phone:     p.phone     || '',
-        category:  p.category  || '',
+        supplier:  p.supplier || '',
+        phone:     p.phone    || '',
         dateAdded: p.date_added || '',
       }));
       renderTable();
@@ -422,22 +485,20 @@
       const expiry   = document.getElementById('f-date').value;
       const supplier = document.getElementById('f-supplier').value.trim();
       const phone    = document.getElementById('f-phone').value.trim();
-      const category = getCategoryValue('f-category', 'f-cat-custom');
       const errEl    = document.getElementById('form-error');
       if (!name || isNaN(qty) || !expiry) { errEl.style.display = 'block'; return; }
       errEl.style.display = 'none';
 
       const { data, error } = await sb.from('products').insert([{
-        name, qty, expiry, supplier, phone, category, date_added: nowStr()
+        name, qty, expiry, supplier, phone, date_added: nowStr()
       }]).select();
 
       if (error) { console.error(error); alert('Error saving product. Please try again.'); return; }
 
       products.push({
-        id: data[0].id, name, qty, expiry, supplier, phone, category, dateAdded: nowStr()
+        id: data[0].id, name, qty, expiry, supplier, phone, dateAdded: nowStr()
       });
       ['f-name','f-qty','f-date','f-supplier','f-phone'].forEach(id => document.getElementById(id).value = '');
-      populateCatSelect('f-category', '');
       renderTable();
     }
 
@@ -469,12 +530,11 @@
       const expiry   = document.getElementById('e-date').value;
       const supplier = document.getElementById('e-supplier').value.trim();
       const phone    = document.getElementById('e-phone').value.trim();
-      const category = getCategoryValue('e-category', 'e-cat-custom');
       if (!name || isNaN(qty) || !expiry) return;
-      Object.assign(p, { name, qty, expiry, supplier, phone, category });
+      Object.assign(p, { name, qty, expiry, supplier, phone });
       editingId = null; expandedId = null;
       renderTable();
-      await sb.from('products').update({ name, qty, expiry, supplier, phone, category }).eq('id', id);
+      await sb.from('products').update({ name, qty, expiry, supplier, phone }).eq('id', id);
     }
 
     // ── Undo delete ───────────────────────────────────────────
@@ -501,7 +561,7 @@
     }
 
     function updateSortArrows() {
-      ['name','qty','expiry','days','status','category'].forEach(c => {
+      ['name','qty','expiry','days','status'].forEach(c => {
         const el = document.getElementById('arr-' + c);
         if (!el) return;
         const th = el.closest('th');
@@ -513,8 +573,7 @@
     function sortProducts(list) {
       return list.slice().sort((a, b) => {
         let va, vb;
-        if (sortCol === 'name')     { va = a.name.toLowerCase();      vb = b.name.toLowerCase(); }
-        if (sortCol === 'category') { va = (a.category||'').toLowerCase(); vb = (b.category||'').toLowerCase(); }
+        if (sortCol === 'name')   { va = a.name.toLowerCase();  vb = b.name.toLowerCase(); }
         if (sortCol === 'qty')    { va = a.qty;                  vb = b.qty; }
         if (sortCol === 'expiry') { va = new Date(a.expiry);     vb = new Date(b.expiry); }
         if (sortCol === 'days')   { va = daysUntil(a.expiry);    vb = daysUntil(b.expiry); }
@@ -544,18 +603,7 @@
       );
 
       if (filtered.length === 0) {
-        if (products.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8">
-            <div class="empty-state">
-              <div class="empty-state-icon">📦</div>
-              <div class="empty-state-title">No products yet</div>
-              <div class="empty-state-sub">Add your first product to get started tracking expiry dates and stock levels.</div>
-              <button class="empty-state-btn" onclick="toggleForm()">+ Add your first product</button>
-            </div>
-          </td></tr>`;
-        } else {
-          tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No products match your search.</td></tr>';
-        }
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No products found.</td></tr>';
       } else {
         tbody.innerHTML = filtered.map(p => {
           const days = daysUntil(p.expiry);
@@ -571,7 +619,6 @@
               <td style="${low ? 'color:#b91c1c;font-weight:600' : ''}">${p.qty}</td>
               <td style="color:#6b7280">${formatDate(p.expiry)}</td>
               <td class="${daysCls(days)}">${daysLabel(days)}</td>
-              <td style="font-size:12px;color:#6b7280;">${p.category || '—'}</td>
               <td><span class="badge ${st.cls}">${st.label}</span></td>
               <td>
                 <div class="stock-controls" onclick="event.stopPropagation()">
@@ -591,19 +638,11 @@
           if (isExpanded && !isEditing) {
             expandRow = `
               <tr class="expand-row">
-                <td colspan="8">
+                <td colspan="7">
                   <div class="expand-inner">
                     <div><div class="expand-label">Date added</div><div class="expand-value">${p.dateAdded || '—'}</div></div>
                     <div><div class="expand-label">Supplier</div><div class="expand-value">${p.supplier || '—'}</div></div>
-                    <div>
-                      <div class="expand-label">Supplier phone</div>
-                      <div class="expand-value">${p.phone || '—'}</div>
-                      ${p.phone ? `<div class="contact-btns">
-                        <a class="btn-call" href="tel:${p.phone}">Call</a>
-                        <a class="btn-wa" href="https://wa.me/${p.phone.replace(/[^0-9]/g,'')}" target="_blank">WhatsApp</a>
-                      </div>` : ''}
-                    </div>
-                    <div><div class="expand-label">Category</div><div class="expand-value">${p.category || '—'}</div></div>
+                    <div><div class="expand-label">Supplier phone</div><div class="expand-value">${p.phone || '—'}</div></div>
                     <div><div class="expand-label">Expiry date</div><div class="expand-value">${formatDate(p.expiry)}</div></div>
                     <div><div class="expand-label">Days remaining</div><div class="expand-value ${daysCls(days)}">${daysLabel(days)}</div></div>
                   </div>
@@ -614,7 +653,7 @@
           if (isEditing) {
             expandRow = `
               <tr class="expand-row">
-                <td colspan="8">
+                <td colspan="7">
                   <div class="edit-form">
                     <div class="edit-grid">
                       <div class="field"><label>Product name</label>  <input type="text"   id="e-name"     value="${p.name}" /></div>
@@ -622,16 +661,6 @@
                       <div class="field"><label>Expiry date</label>    <input type="date"   id="e-date"     value="${p.expiry}" /></div>
                       <div class="field"><label>Supplier name</label>  <input type="text"   id="e-supplier" value="${p.supplier || ''}" /></div>
                       <div class="field"><label>Supplier phone</label> <input type="text"   id="e-phone"    value="${p.phone || ''}" /></div>
-                      <div class="field">
-                        <label>Category</label>
-                        <select class="cat-select" id="e-category" onchange="handleCatChange('e-category','e-cat-custom')">
-                          <option value="">— Select —</option>
-                        </select>
-                        <div class="cat-custom-wrap" id="e-cat-custom-wrap">
-                          <input type="text" id="e-cat-custom" placeholder="Type new category..." />
-                          <button onclick="addCustomCategory('e-cat-custom','e-category')">Add</button>
-                        </div>
-                      </div>
                     </div>
                     <div class="edit-actions">
                       <button class="btn-save"   onclick="saveEdit(${p.id})">Save changes</button>
@@ -668,12 +697,7 @@
       renderTable();
     }
 
-    function startEdit(id) {
-      editingId = id; expandedId = id;
-      renderTable();
-      const p = products.find(p => p.id === id);
-      setTimeout(() => populateCatSelect('e-category', p ? p.category : ''), 0);
-    }
+    function startEdit(id) { editingId = id; expandedId = id; renderTable(); }
     function cancelEdit()  { editingId = null; expandedId = null; renderTable(); }
 
     function showUndo() {
@@ -761,82 +785,7 @@
       renderTable();
     }
 
-    function exportCSV() {
-      const headers = ['Name','Quantity','Expiry Date','Category','Status','Days Left','Supplier','Supplier Phone','Date Added'];
-      const rows = products.map(p => {
-        const days = daysUntil(p.expiry);
-        const st   = getStatus(days);
-        return [
-          p.name, p.qty, p.expiry, p.category || '',
-          st.label, daysLabel(days),
-          p.supplier || '', p.phone || '', p.dateAdded || ''
-        ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',');
-      });
-      const csv  = [headers.join(','), ...rows].join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href     = url;
-      a.download = 'shelfalert-export-' + new Date().toISOString().slice(0,10) + '.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    // ── Category management ──────────────────────────────────
-    const DEFAULT_CATS = ['Medicines','Food','Dairy','Frozen','Cleaning','Pharmacy','Personal Care','Other'];
-
-    function getCategories() {
-      const custom = JSON.parse(localStorage.getItem('customCategories') || '[]');
-      return [...DEFAULT_CATS, ...custom.filter(c => !DEFAULT_CATS.includes(c))];
-    }
-
-    function populateCatSelect(selectId, selectedVal) {
-      const sel  = document.getElementById(selectId);
-      if (!sel) return;
-      const cats = getCategories();
-      const cur  = sel.value;
-      sel.innerHTML = '<option value="">— Select —</option>' +
-        cats.map(c => `<option value="${c}" ${c === (selectedVal || cur) ? 'selected' : ''}>${c}</option>`).join('') +
-        '<option value="__custom__">+ Add custom category</option>';
-    }
-
-    function handleCatChange(selectId, customInputId) {
-      const sel  = document.getElementById(selectId);
-      const wrap = document.getElementById(selectId.replace('category', 'cat-custom') + '-wrap') ||
-                   document.getElementById(customInputId + '-wrap');
-      const wrapEl = sel.closest('.field').querySelector('.cat-custom-wrap');
-      if (sel.value === '__custom__') {
-        wrapEl.style.display = 'block';
-        sel.value = '';
-      } else {
-        wrapEl.style.display = 'none';
-      }
-    }
-
-    function addCustomCategory(inputId, selectId) {
-      const input = document.getElementById(inputId);
-      const val   = input.value.trim();
-      if (!val) return;
-      const custom = JSON.parse(localStorage.getItem('customCategories') || '[]');
-      if (!custom.includes(val) && !DEFAULT_CATS.includes(val)) {
-        custom.push(val);
-        localStorage.setItem('customCategories', JSON.stringify(custom));
-      }
-      populateCatSelect(selectId, val);
-      input.closest('.cat-custom-wrap').style.display = 'none';
-    }
-
-    function getCategoryValue(selectId, customInputId) {
-      const sel = document.getElementById(selectId);
-      if (sel.value) return sel.value;
-      const custom = document.getElementById(customInputId);
-      return custom ? custom.value.trim() : '';
-    }
-
-    function toggleForm() {
-      document.getElementById('add-form').classList.toggle('open');
-      populateCatSelect('f-category', '');
-    }
+    function toggleForm() { document.getElementById('add-form').classList.toggle('open'); }
   </script>
 </body>
 </html>
