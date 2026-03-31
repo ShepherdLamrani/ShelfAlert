@@ -172,8 +172,11 @@
 
       /* Add form */
       .form-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid .field:first-child { grid-column: span 2; }
       .btn-add { grid-column: span 2; width: 100%; }
+      .cat-select { width: 100%; }
       .edit-grid { grid-template-columns: 1fr 1fr; }
+      .edit-grid .field:first-child { grid-column: span 2; }
 
       /* Table header */
       .table-header { flex-direction: column; align-items: flex-start; }
