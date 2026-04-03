@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShelfAlert — Never Miss an Expiry Date</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2563eb;
+      --blue-mid: #3b82f6;
+      --dark: #0c0c14;
+      --surface: #15151f;
+      --surface2: #1e1e2d;
+      --border: rgba(255,255,255,0.07);
+      --text: #f0f0f8;
+      --muted: #7a7a9a;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(12,12,20,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1080px; margin: 0 auto; padding: 0 32px;
+      height: 62px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 9px; font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; }
+    .logo-bar { width: 4px; height: 24px; background: var(--blue); border-radius: 2px; }
+    .logo .alert { color: var(--blue-mid); }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-right a { font-size: 14px; color: var(--muted); transition: color .2s; }
+    .nav-right a:hover { color: var(--text); }
+    .btn { display: inline-block; padding: 9px 22px; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all .2s; }
+    .btn-blue { background: var(--blue); color: #fff; }
+    .btn-blue:hover { background: var(--blue-mid); }
+    .btn-outline { border: 1px solid rgba(255,255,255,0.12); color: var(--text); }
+    .btn-outline:hover { background: var(--surface); }
+
+    /* HERO */
+    .hero {
+      max-width: 1080px; margin: 0 auto; padding: 96px 32px 72px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+    }
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.25);
+      color: var(--blue-mid); font-size: 12px; font-weight: 500; letter-spacing: 0.2px;
+      padding: 5px 12px; border-radius: 99px; margin-bottom: 24px;
+    }
+    .hero-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue-mid); }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(34px, 4.5vw, 52px);
+      font-weight: 800; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 18px;
+    }
+    .hero h1 span { color: var(--blue-mid); }
+    .hero p { font-size: 16px; color: var(--muted); line-height: 1.75; max-width: 420px; margin-bottom: 36px; }
+    .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* MOCKUP */
+    .mockup { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .mockup-top { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; gap: 6px; align-items: center; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .dr { background: #ff5f57; } .dy { background: #febc2e; } .dg { background: #28c840; }
+    .mockup-body { padding: 16px 14px; }
+    .m-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .m-header span:first-child { font-size: 12px; font-weight: 500; color: var(--muted); }
+    .m-header span:last-child { font-size: 11px; color: #f59e0b; }
+    .m-cols { display: grid; grid-template-columns: 2fr 1fr 1fr 72px; gap: 6px; padding: 6px 8px; font-size: 10px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .m-row { display: grid; grid-template-columns: 2fr 1fr 1fr 72px; gap: 6px; padding: 8px; border-radius: 7px; font-size: 12px; margin-bottom: 3px; align-items: center; background: rgba(255,255,255,0.03); }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; }
+    .tag-r { background: rgba(220,38,38,0.12); color: #f87171; }
+    .tag-a { background: rgba(234,179,8,0.12); color: #fbbf24; }
+    .tag-g { background: rgba(34,197,94,0.12); color: #4ade80; }
+
+    /* TRUST BAR */
+    .trust { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 24px 32px; }
+    .trust-inner { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; gap: 36px; flex-wrap: wrap; }
+    .trust-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    .trust-items { display: flex; gap: 28px; flex-wrap: wrap; }
+    .trust-item { font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+
+    /* SECTIONS */
+    .section { max-width: 1080px; margin: 0 auto; padding: 80px 32px; }
+    .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--blue-mid); margin-bottom: 12px; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: clamp(26px, 3vw, 36px); font-weight: 800; letter-spacing: -0.3px; line-height: 1.25; margin-bottom: 14px; }
+    .section-body { font-size: 15px; color: var(--muted); line-height: 1.75; max-width: 500px; margin-bottom: 52px; }
+
+    /* FEATURE CARDS */
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 24px; transition: border-color .2s, transform .2s; }
+    .card:hover { border-color: rgba(37,99,235,0.3); transform: translateY(-3px); }
+    .card-icon { width: 40px; height: 40px; border-radius: 9px; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.2); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .card-icon svg { width: 18px; height: 18px; stroke: var(--blue-mid); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 9px; }
+    .card p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* STEPS */
+    .steps-wrap { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .step { padding: 48px 36px; }
+    .step:not(:last-child) { border-right: 1px solid var(--border); }
+    .step-num { width: 40px; height: 40px; border-radius: 50%; background: var(--dark); border: 1px solid rgba(37,99,235,0.35); color: var(--blue-mid); font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .step h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+    .step p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* CTA */
+    .cta-wrap { max-width: 1080px; margin: 0 auto; padding: 80px 32px; }
+    .cta-box { background: var(--surface); border: 1px solid rgba(37,99,235,0.2); border-radius: 18px; padding: 64px 48px; text-align: center; }
+    .cta-box h2 { font-family: 'Syne', sans-serif; font-size: clamp(26px, 3.5vw, 40px); font-weight: 800; letter-spacing: -0.3px; margin-bottom: 14px; }
+    .cta-box p { font-size: 15px; color: var(--muted); margin-bottom: 32px; }
+    .cta-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .cta-note { font-size: 13px; color: var(--muted); margin-top: 22px; }
+    .cta-note a { color: var(--blue-mid); }
+    .cta-note a:hover { text-decoration: underline; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 28px 32px; }
+    .footer-inner { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+    .footer-inner p { font-size: 13px; color: var(--muted); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 13px; color: var(--muted); transition: color .2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; padding: 60px 20px 40px; gap: 40px; }
+      .hero-visual { display: none; }
+      .cards { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .step:not(:last-child) { border-right: none; border-bottom: 1px solid var(--border); }
+      .section, .cta-wrap { padding-left: 20px; padding-right: 20px; }
+      .cta-box { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">
+      <div class="logo-bar"></div>
+      <span>Shelf</span><span class="alert">Alert</span>
+    </div>
+    <div class="nav-right">
+      <a href="#features" style="display:none" class="nav-link">Features</a>
+      <a href="#how-it-works" style="display:none" class="nav-link">How it works</a>
+      <a href="mailto:shelfalertmtg@gmail.com" style="display:none" class="nav-link">Contact</a>
+      <a class="btn btn-blue" href="https://shelf-alert-kappa.vercel.app" target="_blank">Open App</a>
+    </div>
+  </div>
+</nav>
+
+<section>
+  <div class="hero">
+    <div>
+      <div class="hero-pill">Built for local business</div>
+      <h1>Stop losing stock to <span>expired products</span></h1>
+      <p>ShelfAlert keeps your inventory clean, your customers safe, and your shelves compliant — with automatic expiry alerts before it's too late.</p>
+      <div class="hero-btns">
+        <a class="btn btn-blue" href="https://shelf-alert-kappa.vercel.app" target="_blank">Try the demo</a>
+        <a class="btn btn-outline" href="mailto:shelfalertmtg@gmail.com">Get in touch</a>
+      </div>
+    </div>
+
+    <div class="mockup">
+      <div class="mockup-top">
+        <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+      </div>
+      <div class="mockup-body">
+        <div class="m-header">
+          <span>Product Inventory</span>
+          <span>⚠ 2 expiring soon</span>
+        </div>
+        <div class="m-cols"><div>Product</div><div>Qty</div><div>Expires</div><div>Status</div></div>
+        <div class="m-row"><div>Paracetamol 500mg</div><div>48</div><div>12 Jun 25</div><div><span class="tag tag-r">Expired</span></div></div>
+        <div class="m-row"><div>Oat Milk 1L</div><div>6</div><div>18 Apr 25</div><div><span class="tag tag-a">7 days</span></div></div>
+        <div class="m-row"><div>Antiseptic Wipes</div><div>120</div><div>03 Aug 25</div><div><span class="tag tag-g">OK</span></div></div>
+        <div class="m-row"><div>Hand Sanitiser 500ml</div><div>30</div><div>29 Apr 25</div><div><span class="tag tag-a">18 days</span></div></div>
+        <div class="m-row"><div>Vitamin C Tabs</div><div>200</div><div>15 Sep 25</div><div><span class="tag tag-g">OK</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="trust">
+  <div class="trust-inner">
+    <span class="trust-label">Built for</span>
+    <div class="trust-items">
+      <div class="trust-item">☕ Cafés</div>
+      <div class="trust-item">💊 Pharmacies</div>
+      <div class="trust-item">🏥 Clinics</div>
+      <div class="trust-item">🛒 Convenience Stores</div>
+    </div>
+  </div>
+</div>
+
+<section id="features">
+  <div class="section">
+    <div class="eyebrow">Features</div>
+    <h2 class="section-title">Everything you need</h2>
+    <p class="section-body">A focused toolkit that gives small business owners full visibility over their stock — without the complexity of enterprise software.</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Colour-coded expiry alerts</h3>
+        <p>Red, amber, and green status at a glance. Instantly know what's expired, expiring soon, or safe.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <h3>Daily email alerts</h3>
+        <p>Automatic summaries land in your inbox every morning. Know what needs attention before you open.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <h3>Low stock warnings</h3>
+        <p>Set your own thresholds. ShelfAlert flags items running low before you hit zero.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Supplier management</h3>
+        <p>Store supplier contacts with one-tap WhatsApp and call buttons built right in.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <h3>Action Centre</h3>
+        <p>A dedicated panel surfaces every urgent item — expired or critically low — in one place.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        <h3>CSV export</h3>
+        <p>Download your inventory any time for audits, compliance checks, or sharing with your team.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="how-it-works" class="steps-wrap">
+  <div class="section">
+    <div class="eyebrow">How it works</div>
+    <h2 class="section-title">Up and running in minutes</h2>
+    <p class="section-body">No training needed. If you can use a spreadsheet, you can use ShelfAlert.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Add your products</h3>
+        <p>Enter product names, quantities, and expiry dates. Assign categories and supplier details as you go.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Get your alert email</h3>
+        <p>Every morning ShelfAlert checks your inventory and sends a summary of anything that needs attention.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Act fast, stay compliant</h3>
+        <p>Remove expired stock, reorder from suppliers in one tap, and keep a clean shelf every single day.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-wrap">
+  <div class="cta-box">
+    <h2>Ready to take control of your shelf?</h2>
+    <p>Try the live demo — no sign-up needed. See ShelfAlert in action in under 60 seconds.</p>
+    <div class="cta-btns">
+      <a class="btn btn-blue" href="https://shelf-alert-kappa.vercel.app" target="_blank">Try the demo</a>
+      <a class="btn btn-outline" href="https://wa.me/353874212154" target="_blank">Chat on WhatsApp</a>
+    </div>
+    <p class="cta-note">Questions? Email <a href="mailto:shelfalertmtg@gmail.com">shelfalertmtg@gmail.com</a></p>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="logo"><div class="logo-bar"></div><span>Shelf</span><span class="alert">Alert</span></div>
+    <p>© 2025 ShelfAlert. Built for local business.</p>
+    <div class="footer-links">
+      <a href="https://shelf-alert-kappa.vercel.app" target="_blank">Open App</a>
+      <a href="mailto:shelfalertmtg@gmail.com">Contact</a>
+      <a href="https://wa.me/353874212154" target="_blank">WhatsApp</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  if (window.innerWidth > 760) {
+    document.querySelectorAll('.nav-link').forEach(el => el.style.display = 'inline');
+  }
+</script>
+
+</body>
+</html>
